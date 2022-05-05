@@ -1,2 +1,2 @@
 # clulz
-A command-line utility library for Zig programs
+A **c**ommand-**l**ine **u**tility **l**ibrary for **z**ig programs
