@@ -14,4 +14,14 @@ pub fn build(b: *std.build.Builder) void {
 
     const test_step = b.step("test", "Run library tests");
     test_step.dependOn(&main_tests.step);
+
+    const example = b.addExecutable("example", "src/example.zig");
+    example.setBuildMode(mode);
+    example.install();
+
+    const example_run_step = example.run();
+    example_run_step.step.dependOn(b.getInstallStep());
+
+    const run = b.step("example", "Build and run example");
+    run.dependOn(&example_run_step.step);
 }

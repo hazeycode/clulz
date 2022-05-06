@@ -12,7 +12,7 @@
       in {
        devShell = with pkgs; mkShell {
           nativeBuildInputs = [
-            zig.packages."${system}".master.latest
+            zig.packages."${system}"."0.9.1"
           ];
         };
       });
