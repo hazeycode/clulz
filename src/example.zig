@@ -17,12 +17,12 @@ pub fn main() !void {
                 .args = struct { name: []const u8 },
                 .proc = greet,
             },
-            // .{
-            //     .command = "quit",
-            //     .description = "Terminate the program",
-            //     .args = struct {},
-            //     .proc = quit,  
-            // },
+            .{
+                .command = "quit",
+                .description = "Terminate the program",
+                .args = struct {},
+                .proc = quit,  
+            },
         });
     }
 }

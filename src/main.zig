@@ -40,6 +40,9 @@ pub const CommandDescriptor = struct {
 
 /// Prints the given prompt, parses input from stdin and maps it to the given commands
 pub fn promptCommand(prompt_str: []const u8, context: anytype, cmds: []const CommandDescriptor) !bool {
+    _ = context;
+    _ = cmds;
+    
     const stdout = std.io.getStdOut().writer();
     const stdin = std.io.getStdIn().reader();
 
@@ -84,67 +87,65 @@ pub fn promptCommand(prompt_str: []const u8, context: anytype, cmds: []const Com
     const command_word = words[0];
     const arg_words = words[1..];
     
-    const matched_cmd_desc = matchCommand: {
-        inline for (cmds) |cmd_desc| {
-            if (std.mem.eql(u8, cmd_desc.command, command_word)) {
-                break :matchCommand cmd_desc;
-            }
-        }
-        try println("Invalid input. Type `help` for a list of available commands", .{});
-        return false;
-    };
-       
-    const Args = matched_cmd_desc.args;
-    const arg_fields = std.meta.fields(Args);
-    
-    if (arg_fields.len < arg_words.len) {
-        try println("Too many arguments. Type `help` for a list of available commands", .{});
-        return false;
-    }
-        
-    var args: Args = undefined;
-
-    var parsed_arg_count: usize = 0;
-    inline for (arg_fields) |arg_field, i| {
-        if (i < arg_words.len) {
-            // parse given arguments
-            const arg_word = arg_words[i];
-            const value = parse(arg_field.field_type, arg_word) catch {
-                try println("Failed to parse argument as {s}", .{@typeName(arg_field.field_type)});
+    inline for (cmds) |cmd_desc| {
+        if (std.mem.eql(u8, cmd_desc.command, command_word)) {
+            
+            const Args = cmd_desc.args;
+            const arg_fields = std.meta.fields(Args);
+            
+            if (arg_fields.len < arg_words.len) {
+                try println("Too many arguments. Type `help` for a list of available commands", .{});
                 return false;
-            };
-            @field(args, arg_field.name) = value;
-            parsed_arg_count += 1;
-        }
-        else {
-            // prompt for any missing args    
-            var prompt_buf: [32]u8 = undefined;
-            var attempts_remaining: u32 = 3;
-            while (true) {
-                const arg_prompt_str = try std.fmt.bufPrint(&prompt_buf, "enter {s}: ", .{arg_field.name});
-                const maybe_value = try prompt(arg_field.field_type, arg_prompt_str);
-                const is_empty_string = if (arg_field.field_type == []const u8) maybe_value.?.len == 0 else false;
+            }
                 
-                attempts_remaining -= 1;
-                
-                if (maybe_value != null and is_empty_string == false) {
-                    @field(args, arg_field.name) = maybe_value.?;
+            var args: Args = undefined;
+        
+            var parsed_arg_count: usize = 0;
+            inline for (arg_fields) |arg_field, i| {
+                if (i < arg_words.len) {
+                    // parse given arguments
+                    const arg_word = arg_words[i];
+                    const value = parse(arg_field.field_type, arg_word) catch {
+                        try println("Failed to parse argument as {s}", .{@typeName(arg_field.field_type)});
+                        return false;
+                    };
+                    @field(args, arg_field.name) = value;
                     parsed_arg_count += 1;
-                    break;
-                }
-                else if (attempts_remaining > 0) {
-                    try println("Invalid input. Expected {s}", .{arg_field.field_type});
                 }
                 else {
-                    try println("Too many failed attempts. Aborting.", .{});
-                    return false;
+                    // prompt for any missing args    
+                    var prompt_buf: [32]u8 = undefined;
+                    var attempts_remaining: u32 = 3;
+                    while (true) {
+                        const arg_prompt_str = try std.fmt.bufPrint(&prompt_buf, "enter {s}: ", .{arg_field.name});
+                        const maybe_value = try prompt(arg_field.field_type, arg_prompt_str);
+                        const is_empty_string = if (arg_field.field_type == []const u8) maybe_value.?.len == 0 else false;
+                        
+                        attempts_remaining -= 1;
+                        
+                        if (maybe_value != null and is_empty_string == false) {
+                            @field(args, arg_field.name) = maybe_value.?;
+                            parsed_arg_count += 1;
+                            break;
+                        }
+                        else if (attempts_remaining > 0) {
+                            try println("Invalid input. Expected {s}", .{arg_field.field_type});
+                        }
+                        else {
+                            try println("Too many failed attempts. Aborting.", .{});
+                            return false;
+                        }
+                    }
                 }
             }
+            
+            cmd_desc.proc(args, context);
+            return true;
         }
     }
     
-    matched_cmd_desc.proc(args, context);
-    return true;
+    try println("Invalid input. Type `help` for a list of available commands", .{});
+    return false;
 }
 
 fn typeName(comptime T: type) []const u8 {
