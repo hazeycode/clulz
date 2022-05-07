@@ -1,6 +1,7 @@
 const std = @import("std");
 
 const max_input_len = 1024;
+var user_input_buf: [max_input_len]u8 = undefined;
 
 /// Just a wrapper for printing a line of text to stdout
 pub fn println(comptime fmt: []const u8, args: anytype) !void {
@@ -22,8 +23,7 @@ pub fn prompt(comptime T: type, prompt_str: []const u8) !?T {
 
     try stdout.writeAll(prompt_str);
 
-    var user_input_buf: [max_input_len]u8 = undefined;
-    const user_input = try stdin.readUntilDelimiter(user_input_buf[0..], '\n');
+     const user_input = try stdin.readUntilDelimiter(user_input_buf[0..], '\n');
 
     return parse(T, user_input) catch {
         try println("Invalid input. Expected {s}", .{typeName(T)});
@@ -68,7 +68,6 @@ pub fn promptCommand(
     var user_input_words_buf: [max_input_words][]u8 = undefined;
 
     const words = parseUserInput: {
-        var user_input_buf: [max_input_len]u8 = undefined;
         const user_input = try stdin.readUntilDelimiter(user_input_buf[0..], '\n');
 
         var i: usize = 0;
@@ -78,18 +77,30 @@ pub fn promptCommand(
             if (std.ascii.isSpace(user_input[i])) {
                 continue;
             }
-
-            const word_start = i;
-            var word_end = i;
-            while (i < user_input.len) : ({
+       
+            const double_quotes = (user_input[i] == '"');
+            if (double_quotes) {
                 i += 1;
-                word_end += 1;
-            }) {
-                if (std.ascii.isSpace(user_input[i])) {
-                    break;
+                if (user_input.len <= i) {
+                    try println("Invalid input. Type `help` for a list of available commands.", .{});
+                    return false;
                 }
             }
-
+            
+            const word_start = i;
+            
+            const word_end = findWordEnd: {
+                while (i < user_input.len) : (i += 1) {
+                    if (double_quotes) {
+                        if (user_input[i] == '"') break :findWordEnd i;
+                    }
+                    else if (std.ascii.isSpace(user_input[i])) {
+                        break :findWordEnd i;
+                    }
+                }
+                break :findWordEnd user_input.len;
+            };
+                    
             const word = user_input[word_start..word_end];
             user_input_words_buf[j] = word;
             j += 1;
