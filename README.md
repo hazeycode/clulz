@@ -35,7 +35,7 @@ const answer = try clulz.prompt(u32, "How much wood would a woodchuck chuck if a
 
 See [example.zig](src/example.zig) for a more complete usage example. To run it:
 ```sh
-zig build example
+zig run src/example.zig
 ```
 
 Only this basic functionality is provided right now. Fancy features and improvements will be added per demand. If there's a particular feature that you want to see, feel free to open an issue describing it. Pull requests are also welcome. NOTE: by contributing code, you must have ownership or permission to do so and agree to license it under [the same license as the project](./LICENSE)
