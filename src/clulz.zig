@@ -157,7 +157,7 @@ pub fn promptCommand(
                             parsed_arg_count += 1;
                             break;
                         } else if (attempts_remaining > 0) {
-                            try println("Invalid input. Expected {s}", .{arg_field.field_type});
+                            try println("Invalid input. Expected {s}", .{typeName(arg_field.field_type)});
                         } else {
                             try println("Too many failed attempts. Aborting.", .{});
                             return false;
