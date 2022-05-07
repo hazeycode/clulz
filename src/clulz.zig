@@ -44,6 +44,20 @@ pub fn promptCommand(
     context: anytype,
     cmds: []const CommandDescriptor,
 ) !bool {
+    { // check that CommandDescriptors are valid and unique
+        inline for (cmds) |cmd_desc| {
+            inline for (cmd_desc.command) |c| {
+                comptime if (std.ascii.isSpace(c)) @compileError("Commands must contain no whitespace");
+            }
+        }
+        inline for (cmds) |cmd_desc, i| {
+            inline for (cmds) |cmd_desc_inner, j| {
+                comptime if (i != j and std.mem.eql(u8, cmd_desc.command, cmd_desc_inner.command))
+                    @compileError("Commands must be unique but a duplicate was found");
+            }
+        }
+    }
+    
     const stdout = std.io.getStdOut().writer();
     const stdin = std.io.getStdIn().reader();
 
@@ -103,6 +117,9 @@ pub fn promptCommand(
         return true;
     }
 
+    // map user input to CommmandDescriptor and invoke command
+    // NOTE(hazeycode): This code could be written in a much cleaner way but we have to work
+    // around compiler bugs right now
     inline for (cmds) |cmd_desc| {
         if (std.mem.eql(u8, cmd_desc.command, command_word)) {
             const Args = cmd_desc.args;

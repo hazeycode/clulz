@@ -3,12 +3,10 @@ const clulz = @import("clulz.zig");
 pub fn main() !void {
     try clulz.printDefaultWelcome("clulz example (version 0.0.0)");
     
-    const Context = struct {
+    var context = struct {
         quit: bool = false,
-    };
-    
-    var context = Context{};
-    
+    }{};
+   
     while (context.quit == false) {
         _ = try clulz.promptCommand("example> ", &context, &[_]clulz.CommandDescriptor{
             .{
@@ -34,3 +32,4 @@ fn greet(args: anytype, _: anytype) void {
 fn quit(_: anytype, context: anytype) void {
     context.*.quit = true;
 }
+
