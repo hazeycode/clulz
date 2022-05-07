@@ -12,7 +12,7 @@ _ = try clulz.promptCommand("example> ", .{}, &[_]clulz.CommandDescriptor{
         .args = struct { name: []const u8 },
         .proc = greet,
     },
-}
+};
 
 fn greet(args: anytype, _: anytype) void {
     clulz.println("Hi, {s}!", .{args.name}) catch unreachable;
