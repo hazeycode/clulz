@@ -40,9 +40,6 @@ pub const CommandDescriptor = struct {
 
 /// Prints the given prompt, parses input from stdin and maps it to the given commands
 pub fn promptCommand(prompt_str: []const u8, context: anytype, cmds: []const CommandDescriptor) !bool {
-    _ = context;
-    _ = cmds;
-    
     const stdout = std.io.getStdOut().writer();
     const stdin = std.io.getStdIn().reader();
 
@@ -87,6 +84,18 @@ pub fn promptCommand(prompt_str: []const u8, context: anytype, cmds: []const Com
     const command_word = words[0];
     const arg_words = words[1..];
     
+    if (std.mem.eql(u8, command_word, "help")) {
+        inline for (cmds) |cmd_desc| {
+            try stdout.print("\n{s}:\n{s}", .{cmd_desc.description, cmd_desc.command});
+            inline for (std.meta.fields(cmd_desc.args)) |arg_field| {
+                try stdout.print(" <{s}>", .{arg_field.name});
+            }
+            try stdout.print("\n", .{});
+        }
+        try stdout.print("\n", .{});
+        return true;
+    }
+    
     inline for (cmds) |cmd_desc| {
         if (std.mem.eql(u8, cmd_desc.command, command_word)) {
             
@@ -94,7 +103,7 @@ pub fn promptCommand(prompt_str: []const u8, context: anytype, cmds: []const Com
             const arg_fields = std.meta.fields(Args);
             
             if (arg_fields.len < arg_words.len) {
-                try println("Too many arguments. Type `help` for a list of available commands", .{});
+                try println("Too many arguments. Type `help` for a list of available commands.", .{});
                 return false;
             }
                 
@@ -144,7 +153,7 @@ pub fn promptCommand(prompt_str: []const u8, context: anytype, cmds: []const Com
         }
     }
     
-    try println("Invalid input. Type `help` for a list of available commands", .{});
+    try println("Invalid input. Type `help` for a list of available commands.", .{});
     return false;
 }
 

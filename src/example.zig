@@ -13,7 +13,7 @@ pub fn main() !void {
         _ = try clulz.promptCommand("example> ", &context, &[_]clulz.CommandDescriptor{
             .{
                 .command = "greet",
-                .description = "Prints a greeting",
+                .description = "Print a greeting",
                 .args = struct { name: []const u8 },
                 .proc = greet,
             },
