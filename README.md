@@ -16,8 +16,8 @@ const answer = try clulz.prompt(u32, "How much wood would a woodchuck chuck if a
 
 `promptCommand` can be used to prompt for input that is mapped to some command, as defined by `CommandDescriptor`s, a bool indicating whether a command was invoked is returned, for example:
 ```zig
-_ = try clulz.promptCommand("example> ", .{}, &[_]clulz.CommandDescriptor{
-    .{
+_ = try clulz.promptCommand("example> ", .{}, &.{
+    clulz.CommandDescriptor{
         .command = "greet",
         .description = "Print a greeting",
         .args = struct { name: []const u8 },
@@ -25,8 +25,8 @@ _ = try clulz.promptCommand("example> ", .{}, &[_]clulz.CommandDescriptor{
     },
 };
 
-fn greet(args: anytype, _: anytype) void {
-    clulz.println("Hi, {s}!", .{args.name}) catch unreachable;
+fn greet(args: anytype, _: anytype) !void {
+    try clulz.println("Hi, {s}!", .{args.name});
 }
 ```
 
