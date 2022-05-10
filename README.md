@@ -1,7 +1,7 @@
-# clulZ
+# clulz
 A work-in-progress **c**ommand-**l**ine **u**tility **l**ibrary for [**Z**ig](https://ziglang.org/) programs.
 
-Provides a semi-declarative, allocation-free API for building CLI programs.
+Provides a semi-declarative, zero-allocation API for building CLI programs.
 
 __NOTE__: Blocked by comptime bugs in Zig stage 1. Looking for a temporary workaround for compiler crash when multiple args are specified in `CommandDescriptors`.
 
@@ -37,7 +37,7 @@ enter name: Ziggy
 Hi, Ziggy!
 ```
 
-A builtin `help` command is derived from the defined `CommandDescriptor`s
+A builtin `help` command is derived from the defined `CommandDescriptor`s. See [this issue](https://github.com/hazeycode/clulz/issues/1) re. allowing the builtin `help` to be overidden.
 
 
 See [example.zig](src/example.zig) for a more complete usage example. To run it:
