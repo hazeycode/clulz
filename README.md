@@ -3,7 +3,7 @@ A work-in-progress **c**ommand-**l**ine **u**tility **l**ibrary for [**Z**ig](ht
 
 Provides a semi-declarative, zero-allocation API for building CLI programs.
 
-__NOTE__: Blocked by comptime bugs in Zig stage 1. Looking for a temporary workaround for compiler crash when multiple args are specified in `CommandDescriptors`.
+__NOTE__: Blocked by comptime bugs in Zig stage 1. Looking for a temporary workaround for compiler crash when multiple args are specified in `CommandDescriptors`. See [this issue](https://github.com/hazeycode/clulz/issues/2).
 
 Tracking the latest Zig release, currently verison 0.9.1
 
