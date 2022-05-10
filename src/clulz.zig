@@ -194,7 +194,7 @@ pub fn promptCommand(
                 }
             }
 
-            cmd_desc.proc(args, context);
+            try cmd_desc.proc(args, context);
             return true;
         }
     }
